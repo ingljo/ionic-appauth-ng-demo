@@ -10,29 +10,30 @@ import { NavController } from '@ionic/angular';
   styleUrls: ['./home.page.scss'],
 })
 export class HomePage implements OnInit {
-  userInfo : IUserInfo;
-  action : IAuthAction;
+  userInfo: IUserInfo | any;
+  action: IAuthAction;
 
   constructor(
-    private auth : AuthService,
-    private navCtrl : NavController
+    private auth: AuthService,
+    private navCtrl: NavController
   ) { }
 
   ngOnInit() {
     this.auth.authObservable.subscribe((action) => {
       this.action = action
-      if(action.action == AuthActions.SignOutSuccess){
+      if (action.action == AuthActions.SignOutSuccess) {
         this.navCtrl.navigateRoot('landing');
       }
     });
   }
 
-  signOut(){
+  signOut() {
     this.auth.signOut();
   }
 
-  public async getUserInfo() : Promise<void> {
-    this.userInfo = await this.auth.getUserInfo<IUserInfo>();
+  public async getUserInfo(): Promise<void> {
+    // this.userInfo = await this.auth.getUserInfo<IUserInfo>();
+    this.userInfo = await this.auth.getUser();
   }
 
 }
