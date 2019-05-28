@@ -1,6 +1,6 @@
 import { Platform } from '@ionic/angular';
 import { Injectable, NgZone } from '@angular/core';
-import { IonicAuth, IonicAuthorizationRequestHandler, DefaultBrowser } from 'ionic-appauth';
+import { IonicAuth, IonicAuthorizationRequestHandler, DefaultBrowser, Browser, AuthActions } from 'ionic-appauth';
 import { CordovaRequestorService } from './cordova/cordova-requestor.service';
 import { BrowserService } from './cordova/browser.service';
 import { SecureStorageService } from './cordova/secure-storage.service';
@@ -8,11 +8,21 @@ import { StorageService } from './angular/storage.service';
 import { RequestorService } from './angular/requestor.service';
 import { IonicImplicitRequestHandler } from 'ionic-appauth/lib/implicit-request-handler';
 import * as JWT from 'jwt-decode';
+import { StorageBackend } from '@openid/appauth';
+import { settings } from '../settings';
+import { map, filter } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService extends IonicAuth {
+
+  get user$(): Observable<any> {
+    return this.authObservable.pipe(
+      map((auth) => (auth && auth.tokenResponse && auth.tokenResponse.idToken) ?
+        JWT(auth.tokenResponse.idToken) : null));
+  }
 
   constructor(
     requestor: RequestorService,
@@ -53,39 +63,31 @@ export class AuthService extends IonicAuth {
   }
 
   private addConfig() {
-    const client = '6a55a4d1-1c9f-457b-85a5-86d4315d9e96';
-    const serverUrl = 'https://nveb2c.b2clogin.com/tfp/nveb2c.onmicrosoft.com/B2C_1_signupsignintest/v2.0';
-    const scopes = 'openid profile offline_access';
-    const responseType = 'id_token';
-    // const scopes = 'openid profile offline_access';
     if (this.platform.is("cordova")) {
       this.authConfig = {
-        identity_client: client,
-        identity_server: serverUrl,
-        response_type: responseType,
-        redirect_url: 'appauth://callback',
-        scopes,
+        identity_client: settings.auth.clientId,
+        identity_server: settings.auth.authServerUrl,
+        redirect_url: settings.auth.nativeRedirectCallback,
+        scopes: settings.auth.scopes,
         usePkce: true,
-        end_session_redirect_url: 'appauth://endSession',
+        end_session_redirect_url: settings.auth.nativeEndSessionRedirectUrl,
       }
     } else {
+      const baseUrl = window.location.origin;
       this.authConfig = {
-        identity_client: client,
-        identity_server: serverUrl,
-        response_type: responseType,
-        redirect_url: 'http://localhost:8100/implicit/authcallback',
-        scopes,
+        identity_client: settings.auth.clientId,
+        identity_server: settings.auth.authServerUrl,
+        response_type: 'id_token',
+        redirect_url: `${baseUrl}${settings.auth.implicitRedirectCallback}`,
+        scopes: settings.auth.scopes,
         usePkce: false,
-        end_session_redirect_url: 'http://localhost:8100/implicit/endsession',
+        end_session_redirect_url: `${baseUrl}${settings.auth.implicitEndSessionRedirectUrl}`,
       }
     }
-    this.getConfiguration().then((c) => {
-      this.configuration.userInfoEndpoint = 'https://nveb2c.b2clogin.com/tfp/nveb2c.onmicrosoft.com/openid/userinfo';
-    });
-
   }
 
   private handleCallback(callbackUrl: string): void {
+    console.log(`handleCallback: ${callbackUrl}`);
     if ((callbackUrl).indexOf(this.authConfig.redirect_url) === 0) {
       this.AuthorizationCallBack(callbackUrl);
     }

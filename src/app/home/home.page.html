@@ -5,24 +5,23 @@
 </ion-header>
 
 <ion-content>
-  <ion-button (click)="getUserInfo()">Get User Details</ion-button>
   <ion-button (click)="signOut()">Sign Out</ion-button>
-
+  <ion-card *ngIf="(userInfo | async) as user">
+    <ion-card-header>
+      User Info
+    </ion-card-header>
+    <ion-card-content>
+      {{user | json}}
+    </ion-card-content>
+  </ion-card>
   <ion-card *ngIf="action">
     <ion-card-header>
-      Action Data
+      Action Data Log
     </ion-card-header>
     <ion-card-content>
       {{action | json}}
     </ion-card-content>
   </ion-card>
 
-  <ion-card *ngIf="userInfo">
-    <ion-card-header>
-      User Info
-    </ion-card-header>
-    <ion-card-content>
-      {{userInfo | json}}
-    </ion-card-content>
-  </ion-card>
+
 </ion-content>

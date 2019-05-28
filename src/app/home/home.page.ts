@@ -3,6 +3,7 @@ import { AuthService } from '../core/auth.service';
 import { IUserInfo } from '../models/user-info.model';
 import { IAuthAction, AuthActions } from 'ionic-appauth';
 import { NavController } from '@ionic/angular';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -10,7 +11,7 @@ import { NavController } from '@ionic/angular';
   styleUrls: ['./home.page.scss'],
 })
 export class HomePage implements OnInit {
-  userInfo: IUserInfo | any;
+  userInfo: Observable<IUserInfo | any>;
   action: IAuthAction;
 
   constructor(
@@ -19,6 +20,7 @@ export class HomePage implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.userInfo = this.auth.user$;
     this.auth.authObservable.subscribe((action) => {
       this.action = action
       if (action.action == AuthActions.SignOutSuccess) {
@@ -30,10 +32,4 @@ export class HomePage implements OnInit {
   signOut() {
     this.auth.signOut();
   }
-
-  public async getUserInfo(): Promise<void> {
-    // this.userInfo = await this.auth.getUserInfo<IUserInfo>();
-    this.userInfo = await this.auth.getUser();
-  }
-
 }
