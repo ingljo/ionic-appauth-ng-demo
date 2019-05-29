@@ -2,8 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { NavController } from '@ionic/angular';
 import { AuthService } from 'src/app/core/auth.service';
 import { Router } from '@angular/router';
-import { AuthActions } from 'ionic-appauth';
-import { skipWhile, take } from 'rxjs/operators';
+import { AuthActions, IAuthAction } from 'ionic-appauth';
+import { skipWhile, take, catchError } from 'rxjs/operators';
+import { of } from 'rxjs';
 
 @Component({
   template: '<p>Signing in...</p>'
@@ -11,21 +12,24 @@ import { skipWhile, take } from 'rxjs/operators';
 export class AuthCallbackPage implements OnInit {
 
   constructor(
-    private authService : AuthService,
+    private authService: AuthService,
     private navCtrl: NavController,
     private router: Router
   ) { }
 
   ngOnInit() {
     this.authService.AuthorizationCallBack(this.router.url);
-    this.authService.authObservable.pipe(skipWhile(action => action.action != AuthActions.SignInSuccess && action.action != AuthActions.SignInFailed), take(1))
-                                    .subscribe((action) => {
-                                      if(action.action == AuthActions.SignInSuccess){
-                                        this.navCtrl.navigateRoot('home');
-                                      }else{
-                                        this.navCtrl.navigateRoot('landing');
-                                      }
-                                    });
+    this.authService.authObservable
+      .pipe(
+        skipWhile(action => action.action !== AuthActions.SignInSuccess && action.action !== AuthActions.SignInFailed),
+        take(1))
+      .subscribe((action) => {
+        if (action.action === AuthActions.SignInSuccess) {
+          this.navCtrl.navigateRoot('home');
+        } else {
+          this.navCtrl.navigateRoot('landing');
+        }
+      });
   }
 
 }

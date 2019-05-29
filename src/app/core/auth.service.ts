@@ -38,6 +38,7 @@ export class AuthService extends IonicAuth {
       (platform.is('cordova')) ? secureStorage : storage,
       (platform.is('cordova')) ? cordovaRequestor : requestor,
       undefined, undefined,
+      // tslint:disable-next-line:max-line-length
       (platform.is('cordova')) ? new IonicAuthorizationRequestHandler(browser, secureStorage) : new IonicImplicitRequestHandler(new DefaultBrowser(), storage)
     );
 
@@ -45,7 +46,7 @@ export class AuthService extends IonicAuth {
   }
 
   public async startUpAsync() {
-    if (this.platform.is("cordova")) {
+    if (this.platform.is('cordova')) {
       (<any>window).handleOpenURL = (callbackUrl) => {
         this.ngZone.run(() => {
           this.handleCallback(callbackUrl);
@@ -63,7 +64,7 @@ export class AuthService extends IonicAuth {
   }
 
   private addConfig() {
-    if (this.platform.is("cordova")) {
+    if (this.platform.is('cordova')) {
       this.authConfig = {
         identity_client: settings.auth.clientId,
         identity_server: settings.auth.authServerUrl,
@@ -71,7 +72,7 @@ export class AuthService extends IonicAuth {
         scopes: settings.auth.scopes,
         usePkce: true,
         end_session_redirect_url: settings.auth.nativeEndSessionRedirectUrl,
-      }
+      };
     } else {
       const baseUrl = window.location.origin;
       this.authConfig = {
@@ -82,13 +83,17 @@ export class AuthService extends IonicAuth {
         scopes: settings.auth.scopes,
         usePkce: false,
         end_session_redirect_url: `${baseUrl}${settings.auth.implicitEndSessionRedirectUrl}`,
-      }
+      };
     }
   }
 
   private handleCallback(callbackUrl: string): void {
     console.log(`handleCallback: ${callbackUrl}`);
     if ((callbackUrl).indexOf(this.authConfig.redirect_url) === 0) {
+      if (callbackUrl.indexOf('error=') >= 0) {
+        return;
+      }
+
       this.AuthorizationCallBack(callbackUrl);
     }
 

@@ -11,12 +11,13 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { CoreModule } from './core/core.module';
+import { SafariViewController } from '@ionic-native/safari-view-controller/ngx';
 
 @NgModule({
   declarations: [AppComponent],
   entryComponents: [],
   imports: [
-    BrowserModule, 
+    BrowserModule,
     IonicModule.forRoot(),
     IonicStorageModule.forRoot(),
     HttpClientModule,
@@ -26,8 +27,9 @@ import { CoreModule } from './core/core.module';
   providers: [
     StatusBar,
     SplashScreen,
+    SafariViewController,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule {}
+export class AppModule { }

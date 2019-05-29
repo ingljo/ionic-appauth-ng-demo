@@ -22,7 +22,7 @@ import { RequestorService } from './angular/requestor.service';
     StorageService,
     AuthGuardService,
     AuthHttpService,
-    AuthService
+    AuthService,
   ]
 })
 export class CoreModule { }

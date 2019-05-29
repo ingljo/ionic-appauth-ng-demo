@@ -5,6 +5,8 @@
 </ion-header>
 
 <ion-content>
+  <!-- <ion-button (click)="editProfile()">Edit profile</ion-button> -->
+  <ion-button (click)="gotoWeb()">Goto web</ion-button>
   <ion-button (click)="signOut()">Sign Out</ion-button>
   <ion-card *ngIf="(userInfo | async) as user">
     <ion-card-header>
